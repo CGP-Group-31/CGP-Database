@@ -54,6 +54,7 @@ CREATE TABLE Users (
     PasswordHash NVARCHAR(255) NOT NULL,
     DateOfBirth DATE NULL,
     Gender NVARCHAR(10) NULL,
+    address NVARCHAR(200) NULL,
     IsActive BIT DEFAULT 1,
     CreatedAt DATETIME2 DEFAULT GETDATE(),
     LastLogin DATETIME2,
@@ -66,11 +67,12 @@ GO
     DoctorID INT PRIMARY KEY,
     LicenseNumber varchar(30) NOT NULL,
     Specialization varchar(30) NOT NULL,
+    Hospital varchar(255) NOT NULL,
 
-    FOREIGN KEY (DoctorID) REFERENCES Users(UserID),
+    FOREIGN KEY (DoctorID) REFERENCES Users(UserID)
  );
 GO
-
+select * from ElderProfile;
 
 CREATE TABLE ElderProfiles (
     ElderID INT PRIMARY KEY,
@@ -78,6 +80,7 @@ CREATE TABLE ElderProfiles (
     Allergies NVARCHAR(MAX),
     ChronicConditions NVARCHAR(MAX), 
     EmergencyNotes NVARCHAR(MAX),
+    Pastsurgeries NVARCHAR(MAX),
     PreferredDoctorID INT NULL, 
     
     FOREIGN KEY (ElderID) REFERENCES Users(UserID),
@@ -93,19 +96,102 @@ CREATE TABLE CareRelationships (
     IsPrimary BIT DEFAULT 0,
   --  IsApproved BIT DEFAULT 1, 
     CreatedAt DATETIME2 DEFAULT GETDATE(),
-    
     FOREIGN KEY (ElderID) REFERENCES Users(UserID),
     FOREIGN KEY (CaregiverID) REFERENCES Users(UserID)
 );
 GO
+select * from Doctor;
 
 CREATE TABLE EmergencyContacts (
     ContactID INT PRIMARY KEY IDENTITY(1,1),
     ElderID INT NOT NULL,
     ContactName NVARCHAR(100),
     Phone NVARCHAR(20) NOT NULL,
-    PriorityOrder INT, 
-    
+    IsPrimary BIT DEFAULT 0,
+    Relationship varchar(100) NUll,
     FOREIGN KEY (ElderID) REFERENCES Users(UserID)
+);
+GO
+
+CREATE TABLE UserLogins (
+  LoginID INT PRIMARY KEY IDENTITY(1,1),
+  SessionID VARCHAR(200) NULL,
+  UserID INT NOT NULL,
+  LoginTime DATETIME2 NULL DEFAULT GETDATE(),
+  LogOutTime DATETIME2 NULL,
+  RoleID INT NOT NULL,
+  FOREIGN KEY (UserID) REFERENCES Users(UserID),
+  FOREIGN KEY (RoleID) REFERENCES Roles(RoleID)
+);
+--- not inserted
+/*
+CREATE TABLE LocationConsent (
+    ConsentID INT PRIMARY KEY IDENTITY(1,1),
+    ElderID INT NOT NULL,
+    CaregiverID INT NOT NULL,
+    IsEnabled BIT DEFAULT 0,
+    
+    FOREIGN KEY (ElderID) REFERENCES Users(UserID),
+    FOREIGN KEY (CaregiverID) REFERENCES Users(UserID)
+);
+GO
+*/
+
+
+CREATE TABLE Medications (
+    MedicationID INT PRIMARY KEY IDENTITY(1,1),
+    ElderID INT NOT NULL,
+    MedicationName NVARCHAR(100) NOT NULL,
+    Dosage NVARCHAR(50), 
+    Instructions NVARCHAR(255), 
+  ---  PrescribedBy INT NULL, 
+    CreatedBy INT NOT NULL, 
+    IsActive BIT DEFAULT 1,
+    CreatedAt DATETIME2 DEFAULT GETDATE(),
+    
+    FOREIGN KEY (ElderID) REFERENCES Users(UserID),
+  ---  FOREIGN KEY (PrescribedBy) REFERENCES Users(UserID),
+    FOREIGN KEY (CreatedBy) REFERENCES Users(UserID)
+);
+
+
+CREATE TABLE MedicationSchedules (
+    ScheduleID INT PRIMARY KEY IDENTITY(1,1),
+    MedicationID INT NOT NULL,
+    TimeOfDay TIME NOT NULL,
+    RepeatDays VARCHAR(20), 
+    
+    FOREIGN KEY (MedicationID) REFERENCES Medications(MedicationID)
+);
+
+
+CREATE TABLE MedicationAdherence (
+    AdherenceID INT PRIMARY KEY IDENTITY(1,1),
+    ScheduleID INT NOT NULL,
+    ElderID INT NOT NULL,
+    StatusID INT NOT NULL, 
+    TakenAt DATETIME2 NULL,
+    Notes NVARCHAR(255),
+    
+    FOREIGN KEY (ScheduleID) REFERENCES MedicationSchedules(ScheduleID),
+    FOREIGN KEY (StatusID) REFERENCES Status(StatusID),
+    FOREIGN KEY (ElderID) REFERENCES Users(UserID)
+);
+
+
+CREATE TABLE VitalRecords (
+    RecordID INT PRIMARY KEY IDENTITY(1,1),
+    ElderID INT NOT NULL,
+    VitalTypeID INT NOT NULL,
+    
+    -- Handle both Single (Sugar) and Double (BP) values
+    Value DECIMAL(10, 2) NOT NULL,
+    Notes NVARCHAR(255),
+    RecordedBy INT NOT NULL, 
+    RecordedAt DATETIME2 DEFAULT GETDATE(),
+ 
+    FOREIGN KEY (ElderID) REFERENCES Users(UserID),
+    FOREIGN KEY (VitalTypeID) REFERENCES VitalTypes(VitalTypeID),
+    FOREIGN KEY (RecordedBy) REFERENCES Users(UserID)
 );
 GO
