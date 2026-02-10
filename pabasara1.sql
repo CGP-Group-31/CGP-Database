@@ -11,10 +11,10 @@ SELECT * from UserLogins;
 ALTER TABLE ElderProfiles
 ADD  Pasrsurgeries NVARCHAR(MAX);
 
-;
+
 EXEC sp_rename 'ElderProfiles.Pasrsurgeries', 'Pastsurgeries', 'COLUMN';
 
-
+SELECt * FROM EmergencyContacts;
 
 INSERT INTO Users 
 (RoleID, FullName, Email, Phone, PasswordHash, DateOfBirth, Gender, IsActive, CreatedAt, LastLogin)
@@ -68,7 +68,7 @@ DECLARE @DoctorID3 INT = SCOPE_IDENTITY();
 INSERT INTO Doctor (DoctorID, LicenseNumber, Specialization, Hospital)
 VALUES (@DoctorID3, 'LIC1003', 'Orthopedics', 'Downtown Hospital');
 
-
+select * from doctor;
 
 ALTER TABLE EmergencyContacts
 DROP COLUMN ADDRelationship;
@@ -78,4 +78,14 @@ ALTER TABLE EmergencyContacts
 ADD IsPrimary BIT DEFAULT 0,
 Relationship varchar(100) NUll;
 
+
+SELECT * FROM  Medications;
+SELECT * FROM  MedicationSchedules;
+
+
+
+-- Only ONE primary contact per elder
+CREATE UNIQUE INDEX UX_EmergencyContacts_Primary
+ON EmergencyContacts (ElderID)
+WHERE IsPrimary = 1;
 

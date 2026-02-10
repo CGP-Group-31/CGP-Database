@@ -72,7 +72,7 @@ GO
     FOREIGN KEY (DoctorID) REFERENCES Users(UserID)
  );
 GO
-select * from ElderProfile;
+select * from status;
 
 CREATE TABLE ElderProfiles (
     ElderID INT PRIMARY KEY,
@@ -100,7 +100,7 @@ CREATE TABLE CareRelationships (
     FOREIGN KEY (CaregiverID) REFERENCES Users(UserID)
 );
 GO
-select * from Doctor;
+select * from MedicationAdherence;
 
 CREATE TABLE EmergencyContacts (
     ContactID INT PRIMARY KEY IDENTITY(1,1),
@@ -112,8 +112,11 @@ CREATE TABLE EmergencyContacts (
     FOREIGN KEY (ElderID) REFERENCES Users(UserID)
 );
 GO
+CREATE UNIQUE INDEX UX_EmergencyContacts_Primary
+ON EmergencyContacts (ElderID)
+WHERE IsPrimary = 1;
 
-CREATE TABLE UserLogins (
+CREATE TABLE UserLogins (       
   LoginID INT PRIMARY KEY IDENTITY(1,1),
   SessionID VARCHAR(200) NULL,
   UserID INT NOT NULL,
@@ -137,46 +140,72 @@ CREATE TABLE LocationConsent (
 GO
 */
 
+CREATE TABLE UserDevices (
+    UserID INT PRIMARY KEY,
+    FCMToken NVARCHAR(255) NOT NULL,
+    LastUpdated DATETIME2 DEFAULT GETDATE(),
+
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
+);
 
 CREATE TABLE Medications (
     MedicationID INT PRIMARY KEY IDENTITY(1,1),
     ElderID INT NOT NULL,
     MedicationName NVARCHAR(100) NOT NULL,
-    Dosage NVARCHAR(50), 
-    Instructions NVARCHAR(255), 
-  ---  PrescribedBy INT NULL, 
-    CreatedBy INT NOT NULL, 
+    Dosage NVARCHAR(50),
+    Instructions NVARCHAR(255),
+
+    CreatedBy INT NOT NULL, -- caregiver
     IsActive BIT DEFAULT 1,
     CreatedAt DATETIME2 DEFAULT GETDATE(),
-    
+
     FOREIGN KEY (ElderID) REFERENCES Users(UserID),
-  ---  FOREIGN KEY (PrescribedBy) REFERENCES Users(UserID),
     FOREIGN KEY (CreatedBy) REFERENCES Users(UserID)
 );
-
-
 CREATE TABLE MedicationSchedules (
     ScheduleID INT PRIMARY KEY IDENTITY(1,1),
     MedicationID INT NOT NULL,
+
     TimeOfDay TIME NOT NULL,
-    RepeatDays VARCHAR(20), 
-    
-    FOREIGN KEY (MedicationID) REFERENCES Medications(MedicationID)
+    RepeatDays VARCHAR(20) NOT NULL,
+
+    StartDate DATE NOT NULL,
+    EndDate DATE NULL,
+
+    IsActive BIT DEFAULT 1,
+
+    FOREIGN KEY (MedicationID)
+        REFERENCES Medications(MedicationID)
 );
 
-
+CREATE TABLE Status (
+    StatusID INT PRIMARY KEY,
+    StatusName NVARCHAR(20) NOT NULL
+);
+INSERT INTO Status (StatusID, StatusName) VALUES
+(1, 'Pending'),
+(2, 'Taken'),
+(3, 'Missed'),
+(4, 'Skipped');
 CREATE TABLE MedicationAdherence (
     AdherenceID INT PRIMARY KEY IDENTITY(1,1),
     ScheduleID INT NOT NULL,
     ElderID INT NOT NULL,
+
     StatusID INT NOT NULL, 
+    ScheduledFor DATETIME2 NOT NULL,
     TakenAt DATETIME2 NULL,
+
     Notes NVARCHAR(255),
-    
-    FOREIGN KEY (ScheduleID) REFERENCES MedicationSchedules(ScheduleID),
-    FOREIGN KEY (StatusID) REFERENCES Status(StatusID),
-    FOREIGN KEY (ElderID) REFERENCES Users(UserID)
+
+    FOREIGN KEY (ScheduleID)
+        REFERENCES MedicationSchedules(ScheduleID),
+    FOREIGN KEY (StatusID)
+        REFERENCES Status(StatusID),
+    FOREIGN KEY (ElderID)
+        REFERENCES Users(UserID)
 );
+
 
 
 CREATE TABLE VitalRecords (
