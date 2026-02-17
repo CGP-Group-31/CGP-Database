@@ -73,7 +73,7 @@ GO
  );
 GO
 select * from status;
-
+-- null
 CREATE TABLE ElderProfiles (
     ElderID INT PRIMARY KEY,
     BloodType NVARCHAR(5), 
@@ -141,12 +141,17 @@ GO
 */
 
 CREATE TABLE UserDevices (
-    UserID INT PRIMARY KEY,
-    FCMToken NVARCHAR(255) NOT NULL,
+    DeviceID INT PRIMARY KEY IDENTITY(1,1),
+    UserID INT NOT NULL,
+    FCMToken NVARCHAR(255) NULL,
+    app_type VARCHAR(20) NOT NULL,
+    Device_model VARCHAR(50) NULL,
     LastUpdated DATETIME2 DEFAULT GETDATE(),
 
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
+
+--DROP TABLE UserDevices;
 
 CREATE TABLE Medications (
     MedicationID INT PRIMARY KEY IDENTITY(1,1),
@@ -195,11 +200,8 @@ CREATE TABLE MedicationAdherence (
     StatusID INT NOT NULL, 
     ScheduledFor DATETIME2 NOT NULL,
     TakenAt DATETIME2 NULL,
-
     Notes NVARCHAR(255),
-
-    FOREIGN KEY (ScheduleID)
-        REFERENCES MedicationSchedules(ScheduleID),
+    FOREIGN KEY (ScheduleID) REFERENCES MedicationSchedules(ScheduleID),
     FOREIGN KEY (StatusID)
         REFERENCES Status(StatusID),
     FOREIGN KEY (ElderID)
@@ -215,7 +217,7 @@ CREATE TABLE VitalRecords (
     
     -- Handle both Single (Sugar) and Double (BP) values
     Value DECIMAL(10, 2) NOT NULL,
-    Notes NVARCHAR(255),
+ --   Notes NVARCHAR(255),
     RecordedBy INT NOT NULL, 
     RecordedAt DATETIME2 DEFAULT GETDATE(),
  

@@ -39,7 +39,7 @@ ADD address NVARCHAR(200) NULL;
 DELETE FROM Users WHERE UserID = 26;
 
 
-
+SELECt * FROM MedicationSchedules;
 
 INSERT INTO Users (RoleID, FullName, Email, Phone, PasswordHash, DateOfBirth, Gender, address, IsActive)
 VALUES 
@@ -74,14 +74,22 @@ ALTER TABLE EmergencyContacts
 DROP COLUMN ADDRelationship;
 
 
+SELECT * FROM SOS;
+
 ALTER TABLE EmergencyContacts
 ADD IsPrimary BIT DEFAULT 0,
 Relationship varchar(100) NUll;
+
+SELECT name FROM sys.tables;
+
 
 
 SELECT * FROM  Medications;
 SELECT * FROM  MedicationSchedules;
 
+select * from MedicationSchedules;
+
+SELECT *  FROM MedicationAdherence;
 
 
 -- Only ONE primary contact per elder
@@ -89,3 +97,4 @@ CREATE UNIQUE INDEX UX_EmergencyContacts_Primary
 ON EmergencyContacts (ElderID)
 WHERE IsPrimary = 1;
 
+select * FROM UserDevices;
