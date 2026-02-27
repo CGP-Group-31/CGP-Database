@@ -240,3 +240,63 @@ CREATE TABLE AppointmentReminders (
 
 CREATE UNIQUE INDEX UX_Appointment_ReminderType
 ON AppointmentReminders(AppointmentID, ReminderType);
+
+
+
+CREATE TABLE Appointments (
+    AppointmentID INT PRIMARY KEY IDENTITY(1,1),
+    ElderID INT NOT NULL,
+    DoctorName VARCHAR(100) NULL,
+    Title NVARCHAR(100),
+
+    Location NVARCHAR(255),
+    Notes NVARCHAR(255),
+    AppointmentDate DATE,
+    AppointmenTime TIME(0),   -- 24-hour format
+     RecordedAt DATETIME2 DEFAULT GETDATE(),
+    FOREIGN KEY (ElderID) REFERENCES Users(UserID)
+   
+);
+GO
+
+CREATE TABLE LocationTrack (
+    LocationID INT PRIMARY KEY IDENTITY(1,1),
+    ElderID INT NOT NULL,
+    Latitude DECIMAL(10, 6),
+    Longitude DECIMAL(10, 6),
+    RecordedAt DATETIME2 DEFAULT GETDATE(),
+    
+    FOREIGN KEY (ElderID) REFERENCES Users(UserID)
+);
+GO
+
+
+CREATE TABLE SOSLogs (
+    SOSID INT PRIMARY KEY IDENTITY(1,1),
+    ElderID INT NOT NULL,
+    TriggerTypeID INT NOT NULL, 
+    RelationshipID INT NOT NULL,
+    TriggeredAt DATETIME2 DEFAULT GETDATE(),
+    FOREIGN KEY (ElderID) REFERENCES Users(UserID),
+    FOREIGN KEY (RelationshipID) REFERENCES CareRelationships(RelationshipID)
+);
+GO
+
+
+CREATE TABLE Messages (
+    MessageID INT IDENTITY(1,1) PRIMARY KEY,
+    RelationshipID INT,
+    SenderID INT NOT NULL,
+    message_text NVARCHAR(MAX),
+    IsRead BIT DEFAULT 0,
+    SentAt DATETIME2 DEFAULT GETDATE(),
+    FOREIGN KEY (RelationshipID) REFERENCES CareRelationships(RelationshipID),
+    FOREIGN KEY (SenderID) REFERENCES Users(UserID)
+);
+GO
+
+
+CREATE INDEX IX_Messages_IsRead ON Messages(IsRead);
+
+CREATE INDEX IX_Messages_Relationship_SentAt ON Messages(RelationshipID, SentAt);
+CREATE INDEX IX_Messages_IsRead ON Messages(IsRead);
