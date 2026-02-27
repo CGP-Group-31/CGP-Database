@@ -1,7 +1,7 @@
 SELECT * from Roles;
 SELECT * from VitalTypes;
 
-
+SELECT * FROM DOCTOR;
 
 SELECT * from Users;
 select * from CareRelationships;
@@ -11,6 +11,7 @@ SELECT * from UserLogins;
 ALTER TABLE ElderProfiles
 ADD  Pasrsurgeries NVARCHAR(MAX);
 
+SELECT * FROM UserDevices;
 
 EXEC sp_rename 'ElderProfiles.Pasrsurgeries', 'Pastsurgeries', 'COLUMN';
 
@@ -74,7 +75,7 @@ ALTER TABLE EmergencyContacts
 DROP COLUMN ADDRelationship;
 
 
-SELECT * FROM SOS;
+SELECT * FROM SOSlogs;
 
 ALTER TABLE EmergencyContacts
 ADD IsPrimary BIT DEFAULT 0,
@@ -82,12 +83,18 @@ Relationship varchar(100) NUll;
 
 SELECT name FROM sys.tables;
 
+SELECT * FROM ELders;
 
+SELECT *FROM locationtrack;
+
+SELECT * FROM UserDevices;
+
+SELECT * FROM MedicationAdherence ORDER BY AdherenceID DESC;
 
 SELECT * FROM  Medications;
 SELECT * FROM  MedicationSchedules;
 
-select * from MedicationSchedules;
+select * from EmergencyContacts;
 
 SELECT *  FROM MedicationAdherence;
 
@@ -98,3 +105,26 @@ ON EmergencyContacts (ElderID)
 WHERE IsPrimary = 1;
 
 select * FROM UserDevices;
+
+DROP TABLE SOS;
+
+SELECT * FROM  MedicationAdherence;
+
+SELECT * FROM VitalTypes;
+
+ALTER TABLE VitalTypes
+DROP COLUMN HasTwoValues;
+
+
+ALTER TABLE VitalTypes
+DROP CONSTRAINT DF__VitalType__HasTw__5CD6CB2B;
+
+ALTER TABLE VitalTypes
+DROP COLUMN HasTwoValues;
+
+
+SELECT * FROM Messages;
+
+   
+     ALTER TABLE Users
+ADD Timezone VARCHAR(100) NULL;

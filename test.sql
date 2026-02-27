@@ -58,6 +58,7 @@ CREATE TABLE Users (
     IsActive BIT DEFAULT 1,
     CreatedAt DATETIME2 DEFAULT GETDATE(),
     LastLogin DATETIME2,
+    Timezone VARCHAR(100) NOT NULL,
     
     FOREIGN KEY (RoleID) REFERENCES Roles(RoleID)
 );
@@ -73,7 +74,7 @@ GO
  );
 GO
 select * from status;
--- null
+
 CREATE TABLE ElderProfiles (
     ElderID INT PRIMARY KEY,
     BloodType NVARCHAR(5), 
@@ -94,14 +95,14 @@ CREATE TABLE CareRelationships (
     CaregiverID INT NOT NULL,
     RelationshipType NVARCHAR(50), 
     IsPrimary BIT DEFAULT 0,
-  --  IsApproved BIT DEFAULT 1, 
+
     CreatedAt DATETIME2 DEFAULT GETDATE(),
     FOREIGN KEY (ElderID) REFERENCES Users(UserID),
     FOREIGN KEY (CaregiverID) REFERENCES Users(UserID)
 );
 GO
-select * from MedicationAdherence;
-
+select * from Appointments;
+CREATE UNIQUE INDEX UX_CareRelationships_Pair ON CareRelationships(ElderID, CaregiverID);
 CREATE TABLE EmergencyContacts (
     ContactID INT PRIMARY KEY IDENTITY(1,1),
     ElderID INT NOT NULL,
@@ -150,7 +151,8 @@ CREATE TABLE UserDevices (
 
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
-
+CREATE INDEX IX_UserDevices_UserID ON UserDevices(UserID);
+CREATE INDEX IX_UserDevices_AppType ON UserDevices(app_type);
 --DROP TABLE UserDevices;
 
 CREATE TABLE Medications (
@@ -172,7 +174,7 @@ CREATE TABLE MedicationSchedules (
     MedicationID INT NOT NULL,
 
     TimeOfDay TIME NOT NULL,
-    RepeatDays VARCHAR(20) NOT NULL,
+    RepeatDays VARCHAR(50) NOT NULL,
 
     StartDate DATE NOT NULL,
     EndDate DATE NULL,
@@ -215,9 +217,8 @@ CREATE TABLE VitalRecords (
     ElderID INT NOT NULL,
     VitalTypeID INT NOT NULL,
     
-    -- Handle both Single (Sugar) and Double (BP) values
     Value DECIMAL(10, 2) NOT NULL,
- --   Notes NVARCHAR(255),
+    Notes NVARCHAR(255),
     RecordedBy INT NOT NULL, 
     RecordedAt DATETIME2 DEFAULT GETDATE(),
  
@@ -226,3 +227,16 @@ CREATE TABLE VitalRecords (
     FOREIGN KEY (RecordedBy) REFERENCES Users(UserID)
 );
 GO
+
+CREATE TABLE AppointmentReminders (
+    ReminderID INT PRIMARY KEY IDENTITY(1,1),
+    AppointmentID INT NOT NULL,
+    ReminderType VARCHAR(10) NOT NULL,  -- '24H' or '6H'
+    ScheduledFor DATETIME2 NOT NULL,
+    SentAt DATETIME2 NULL,
+    Status VARCHAR(20) NOT NULL DEFAULT 'PENDING', -- PENDING, SENT, SKIPPED
+    FOREIGN KEY (AppointmentID) REFERENCES Appointments(AppointmentID)
+);
+
+CREATE UNIQUE INDEX UX_Appointment_ReminderType
+ON AppointmentReminders(AppointmentID, ReminderType);
