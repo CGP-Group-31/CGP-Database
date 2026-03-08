@@ -1,6 +1,6 @@
 SELECT * from Roles;
 SELECT * from VitalTypes;
-
+SELECT * FROM VitalRecords;
 SELECT * FROM DOCTOR;
 
 SELECT * from Users;
@@ -74,7 +74,7 @@ select * from doctor;
 ALTER TABLE EmergencyContacts
 DROP COLUMN ADDRelationship;
 
-
+SELECT * FROM Complaints;
 SELECT * FROM SOSlogs;
 
 ALTER TABLE EmergencyContacts
@@ -115,16 +115,41 @@ SELECT * FROM VitalTypes;
 ALTER TABLE VitalTypes
 DROP COLUMN HasTwoValues;
 
-
+SELECT * FROM UserLogins;
 ALTER TABLE VitalTypes
 DROP CONSTRAINT DF__VitalType__HasTw__5CD6CB2B;
 
 ALTER TABLE VitalTypes
 DROP COLUMN HasTwoValues;
 
-
+SELECT * FROM VitalRecords;
 SELECT * FROM Messages;
 
    
      ALTER TABLE Users
 ADD Timezone VARCHAR(100) NULL;
+
+
+SELECT *  FROM  AppointmentReminders;
+SELECT *  FROM  Appointments;
+
+INSERT INTO Appointments (
+    ElderID,
+    DoctorName,
+    Title,
+    Location,
+    Notes,
+    AppointmentDate,
+    AppointmentTime,
+    RecordedAt
+)
+VALUES (
+    224, -- ElderID
+    'Dr. Smith', -- DoctorName
+    'Routine Checkup', -- Title
+    'Clinic A', -- Location
+    'Patient reports no issues.', -- Notes
+    '2024-03-10', -- AppointmentDate
+    '14:30', -- AppointmentTime in HH:MM format
+    GETDATE() -- RecordedAt (current date and time)
+);

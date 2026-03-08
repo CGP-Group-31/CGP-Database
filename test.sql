@@ -30,7 +30,7 @@ CREATE TABLE VitalTypes (
     VitalTypeID INT PRIMARY KEY IDENTITY(1,1),
     VitalName NVARCHAR(50) NOT NULL, 
     Unit NVARCHAR(20), 
-    HasTwoValues BIT DEFAULT 0 
+   
 );
 
 
@@ -252,13 +252,12 @@ CREATE TABLE Appointments (
     Location NVARCHAR(255),
     Notes NVARCHAR(255),
     AppointmentDate DATE,
-    AppointmenTime TIME(0),   -- 24-hour format
+    AppointmentTime TIME(0),   -- 24-hour format
      RecordedAt DATETIME2 DEFAULT GETDATE(),
     FOREIGN KEY (ElderID) REFERENCES Users(UserID)
    
 );
 GO
-
 CREATE TABLE LocationTrack (
     LocationID INT PRIMARY KEY IDENTITY(1,1),
     ElderID INT NOT NULL,
@@ -300,3 +299,34 @@ CREATE INDEX IX_Messages_IsRead ON Messages(IsRead);
 
 CREATE INDEX IX_Messages_Relationship_SentAt ON Messages(RelationshipID, SentAt);
 CREATE INDEX IX_Messages_IsRead ON Messages(IsRead);
+
+
+CREATE TABLE MealAdherence (
+    MealAdherenceID INT PRIMARY KEY IDENTITY(1,1),
+    ElderID INT NOT NULL,
+
+    MealTime VARCHAR(10) NOT NULL,  -- BREAKFAST / LUNCH / DINNER
+    ScheduledFor DATETIME2 NOT NULL, -- local-time slot stored as datetime2 (server inserts)
+    StatusID INT NOT NULL,           -- 1 Pending, 2 Taken, 3 Missed, 4 Skipped
+
+    Diet NVARCHAR(255) NULL,        -- what they ate
+    UpdatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+
+    CONSTRAINT FK_MealAdherence_Users
+        FOREIGN KEY (ElderID) REFERENCES Users(UserID),
+         CONSTRAINT FK_MealAdherence_Status
+FOREIGN KEY (StatusID) REFERENCES Status(StatusID),
+    CONSTRAINT UQ_MealAdherence UNIQUE (ElderID, MealTime, ScheduledFor)
+);
+
+INSERT INTO TriggerType (TriggerTypeName)
+VALUES 
+    ('Emergency Call'),
+    ('Ambulance Call');
+
+        CREATE TABLE MoodTypes (   
+    MoodID INT IDENTITY(1,1) PRIMARY KEY,
+    MoodName NVARCHAR(50) NOT NULL UNIQUE
+);  -------ai eken
+INSERT INTO MoodTypes (MoodName)
+VALUES ('Happy'), ('Neutral'), ('Sad'), ('Anxious'), ('Angry'), ('Confused'), ('Tired');
