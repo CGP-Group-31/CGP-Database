@@ -330,3 +330,140 @@ VALUES
 );  -------ai eken
 INSERT INTO MoodTypes (MoodName)
 VALUES ('Happy'), ('Neutral'), ('Sad'), ('Anxious'), ('Angry'), ('Confused'), ('Tired');
+
+
+
+CREATE TABLE ElderAdditionalInfo (
+    AdditionalInfoID INT PRIMARY KEY IDENTITY(1,1),
+
+    ElderID INT NOT NULL,
+    CaregiverID INT NULL,
+
+    CognitiveBehaviorNotes NVARCHAR(MAX) NULL,
+    Preferences NVARCHAR(MAX) NULL,
+    SocialEmotionalBehaviorNotes NVARCHAR(MAX) NULL,
+    HealthGoals NVARCHAR(MAX) NULL,
+    SpecialNotesObservations NVARCHAR(MAX) NULL,
+
+    InfoDate DATE NULL,
+    WeekNumber INT NULL,
+    RecordedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+
+    FOREIGN KEY (ElderID) REFERENCES Users(UserID),
+    FOREIGN KEY (CaregiverID) REFERENCES Users(UserID),
+
+);
+GO
+
+
+CREATE TABLE ElderForm (
+    CheckInID INT PRIMARY KEY IDENTITY(1,1),
+
+    ElderID INT NOT NULL,
+
+    Mood NVARCHAR(20) NOT NULL,
+    SleepQuantity NVARCHAR(50) NOT NULL,
+    WaterIntake NVARCHAR(50) NOT NULL,
+    AppetiteLevel NVARCHAR(20) NOT NULL,
+    EnergyLevel NVARCHAR(20) NOT NULL,
+    OverallDay NVARCHAR(20) NOT NULL,
+    MovementToday NVARCHAR(50) NOT NULL,
+    LonelinessLevel NVARCHAR(20) NOT NULL,
+    TalkInteraction NVARCHAR(40) NOT NULL,
+    StressLevel NVARCHAR(20) NOT NULL,
+
+    InfoDate DATE NOT NULL,
+    RecordedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+
+    FOREIGN KEY (ElderID) REFERENCES Users(UserID),
+
+    CONSTRAINT CHK_Mood
+        CHECK (Mood IN ('Happy','Sad','Neutral')),
+
+    CONSTRAINT CHK_Appetite
+        CHECK (AppetiteLevel IN ('Good','Normal','Low')),
+
+    CONSTRAINT CHK_Energy
+        CHECK (EnergyLevel IN ('Good','Normal','Low')),
+
+    CONSTRAINT CHK_OverallDay
+        CHECK (OverallDay IN ('Good','Okay','Not Good')),
+
+    CONSTRAINT CHK_Movement
+        CHECK (
+            MovementToday IN (
+                'Moved around the house alot',
+                'Moved around the house a little',
+                'Went outside (more than 30 min)',
+                'Went outside (less than 30 min)',
+                'Mostly Resting'
+            )
+        ),
+
+    CONSTRAINT CHK_Loneliness
+        CHECK (LonelinessLevel IN ('Not Lonely','Sometimes','Always')),
+
+    CONSTRAINT CHK_Talk
+        CHECK (
+            TalkInteraction IN (
+                'Yes, with several people',
+                'Yes, with one person',
+                'Just a quick Hello',
+                'No interaction'
+            )
+        ),
+
+    CONSTRAINT CHK_Stress
+        CHECK (StressLevel IN ('No','A little','Yes'))
+);
+GO
+
+
+CREATE UNIQUE INDEX UX_ElderForm_ElderID_InfoDate
+ON ElderForm (ElderID, InfoDate);
+
+
+
+
+CREATE TABLE ElderFormInPain (
+    CheckInPainID INT PRIMARY KEY IDENTITY(1,1),
+
+    CheckInID INT NOT NULL,
+    PainArea NVARCHAR(20) NOT NULL,
+
+    FOREIGN KEY (CheckInID)
+        REFERENCES ElderForm(CheckInID)
+        ON DELETE CASCADE,
+
+    CONSTRAINT CHK_PainArea
+        CHECK (PainArea IN ('Head','Neck','Chest','Legs','Back','Arms','Other','None'))
+);
+GO
+
+
+CREATE TABLE ElderFormActivity (
+    CheckInActivityID INT PRIMARY KEY IDENTITY(1,1),
+
+    CheckInID INT NOT NULL,
+    ActivityName NVARCHAR(30) NOT NULL,
+
+    FOREIGN KEY (CheckInID)
+        REFERENCES ElderForm(CheckInID)
+        ON DELETE CASCADE,
+
+    CONSTRAINT CHK_Activity
+        CHECK (
+            ActivityName IN (
+                'House work',
+                'Exercise',
+                'Gardening',
+                'Watching TV',
+                'Sewing',
+                'Mostly resting',
+                'None'
+            )
+        )
+);
+GO
+
+

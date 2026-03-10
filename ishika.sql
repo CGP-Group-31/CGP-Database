@@ -46,3 +46,7 @@ select * from Roles;
 select * from CareRelationships;
 select * from Messages;
 
+select * from Users;
+UPDATE Users
+SET Timezone = 'IST +05:30'
+WHERE UserID = 223;
