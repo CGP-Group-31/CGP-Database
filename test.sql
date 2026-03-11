@@ -339,11 +339,11 @@ CREATE TABLE ElderAdditionalInfo (
     ElderID INT NOT NULL,
     CaregiverID INT NULL,
 
-    CognitiveBehaviorNotes NVARCHAR(MAX) NULL,
-    Preferences NVARCHAR(MAX) NULL,
-    SocialEmotionalBehaviorNotes NVARCHAR(MAX) NULL,
-    HealthGoals NVARCHAR(MAX) NULL,
-    SpecialNotesObservations NVARCHAR(MAX) NULL,
+    CognitiveBehaviorNotes NVARCHAR(200) NULL,
+    Preferences NVARCHAR(200) NULL,
+    SocialEmotionalBehaviorNotes NVARCHAR(200) NULL,
+    HealthGoals NVARCHAR(200) NULL,
+    SpecialNotesObservations NVARCHAR(200) NULL,
 
     InfoDate DATE NULL,
     WeekNumber INT NULL,
@@ -354,7 +354,6 @@ CREATE TABLE ElderAdditionalInfo (
 
 );
 GO
-
 
 CREATE TABLE ElderForm (
     CheckInID INT PRIMARY KEY IDENTITY(1,1),
