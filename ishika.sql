@@ -50,3 +50,48 @@ select * from Users;
 UPDATE Users
 SET Timezone = 'IST +05:30'
 WHERE UserID = 223;
+
+INSERT INTO Complaints (ComplainantID, Subject, Description)
+VALUES (1366, 'App Lagging', 'The caregiver mobile app takes too long to load the dashboard.');
+
+INSERT INTO Complaints (ComplainantID, Subject, Description)
+VALUES (1355, 'Payment Issue', 'The caregiver monthly payment summary is showing incorrect values.');
+
+INSERT INTO Complaints (ComplainantID, Subject, Description)
+VALUES (1313, 'Incorrect Health Data', 'The blood pressure reading recorded today does not match the actual measurement.');
+
+INSERT INTO Complaints (ComplainantID, Subject, Description)
+VALUES (290, 'Login Error', 'The caregiver app sometimes shows invalid login even with the correct credentials.');
+
+INSERT INTO Complaints (ComplainantID, Subject, Description)
+VALUES (214, 'Appointment Missing', 'A scheduled doctor appointment is not visible in the appointments page.');
+
+INSERT INTO Complaints (ComplainantID, Subject, Description)
+VALUES (196, 'Medication Reminder Failure', 'Medication reminders are not triggering notifications on time.');
+
+INSERT INTO Complaints (ComplainantID, Subject, Description)
+VALUES (68, 'Profile Update Issue', 'Changes made to the elder profile are not saved properly.');
+
+INSERT INTO Complaints (ComplainantID, Subject, Description)
+VALUES (73, 'Slow Dashboard', 'Dashboard takes several seconds to load when opening the caregiver app.');
+
+INSERT INTO Complaints (ComplainantID, Subject, Description)
+VALUES (1311, 'Hydration Record Missing', 'The hydration record for today is not appearing in the elder dashboard.');
+
+INSERT INTO Complaints (ComplainantID, Subject, Description)
+VALUES (1302, 'Duplicate Notifications', 'The same medicine reminder notification is sent multiple times.');
+
+INSERT INTO Complaints (ComplainantID, Subject, Description)
+VALUES (297, 'Location Tracking Delay', 'The elder location on the caregiver app updates very slowly.');
+
+INSERT INTO Complaints (ComplainantID, Subject, Description)
+VALUES (223, 'Emergency Contact Error', 'An error occurs when adding a new emergency contact.');
+
+INSERT INTO Complaints (ComplainantID, Subject, Description)
+VALUES (210, 'Doctor Details Missing', 'Preferred doctor details are not displayed in the medical profile.');
+
+INSERT INTO Complaints (ComplainantID, Subject, Description)
+VALUES (208, 'App Crash', 'The caregiver application crashes when opening the reminders screen.');
+
+INSERT INTO Complaints (ComplainantID, Subject, Description)
+VALUES (111, 'Data Sync Issue', 'Health data entered on the caregiver app does not sync immediately.');
