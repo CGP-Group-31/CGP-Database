@@ -466,3 +466,84 @@ CREATE TABLE ElderFormActivity (
 GO
 
 
+
+CREATE TABLE CheckInSchedules (
+    ScheduleID INT IDENTITY(1,1) PRIMARY KEY,
+    ElderID INT NOT NULL,
+    ScheduleName NVARCHAR(20) NOT NULL,  -- Morning / Night
+    WindowType NVARCHAR(20) NULL,   -- Morning / Night
+    LocalDate DATE NULL,
+    LocalTime TIME NOT NULL,             -- e.g. 08:00, 20:00
+    IsActive BIT NOT NULL DEFAULT 1,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+
+    CONSTRAINT FK_CheckInSchedules_Elder
+        FOREIGN KEY (ElderID) REFERENCES Users(UserID),
+
+    CONSTRAINT UQ_CheckInSchedules UNIQUE (ElderID, ScheduleName)
+);
+
+CREATE TABLE CheckInRuns (
+    RunID BIGINT IDENTITY(1,1) PRIMARY KEY,
+    ScheduleID INT NOT NULL,
+    ElderID INT NOT NULL,
+    PlannedAt DATETIME2 NOT NULL,         -- when it was supposed to run (local)
+    TriggeredAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    CompletedAt DATETIME2 NULL,
+
+    Status NVARCHAR(20) NOT NULL DEFAULT 'Triggered',
+    -- Triggered / WaitingUser / Completed / Missed / Failed
+
+    UserResponse NVARCHAR(MAX) NULL,      -- elder’s direct response (optional)
+    DetectedMoodID INT NULL,
+    Notes NVARCHAR(500) NULL,
+
+    CONSTRAINT FK_CheckInRuns_Schedule
+        FOREIGN KEY (ScheduleID) REFERENCES CheckInSchedules(ScheduleID),
+
+    CONSTRAINT FK_CheckInRuns_Elder
+        FOREIGN KEY (ElderID) REFERENCES Users(UserID),
+
+    CONSTRAINT FK_CheckInRuns_Mood
+        FOREIGN KEY (DetectedMoodID) REFERENCES MoodTypes(MoodID)
+);
+
+CREATE INDEX IX_CheckInRuns_Elder_PlannedAt ON CheckInRuns(ElderID, PlannedAt DESC);
+CREATE INDEX IX_CheckInRuns_Schedule_TriggeredAt ON CheckInRuns(ScheduleID, TriggeredAt DESC);
+
+
+CREATE TABLE ChatThreads (
+    ThreadID BIGINT IDENTITY(1,1) PRIMARY KEY,
+    ElderID INT NOT NULL,
+    RelatedRunID BIGINT NULL,    -- link to check-in run if this chat started from check-in
+    StartedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    ClosedAt DATETIME2 NULL,
+
+    CONSTRAINT FK_ChatThreads_Elder FOREIGN KEY (ElderID) REFERENCES Users(UserID),
+    CONSTRAINT FK_ChatThreads_Run FOREIGN KEY (RelatedRunID) REFERENCES CheckInRuns(RunID)
+);
+
+CREATE INDEX IX_ChatThreads_Elder_StartedAt ON ChatThreads(ElderID, StartedAt DESC);
+
+
+CREATE TABLE ChatMessages (
+    MessageID BIGINT IDENTITY(1,1) PRIMARY KEY,
+    ThreadID BIGINT NOT NULL,
+    ElderID INT NOT NULL,
+    Role NVARCHAR(20) NOT NULL, -- 'elder' | 'assistant' | 'system'
+    Content NVARCHAR(MAX) NOT NULL,
+
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+
+    DetectedMoodID INT NULL,     -- only for elder messages usually
+    SafetyFlag NVARCHAR(50) NULL, -- optional: 'self_harm', 'medical_risk', etc
+
+    CONSTRAINT FK_ChatMessages_Thread FOREIGN KEY (ThreadID) REFERENCES ChatThreads(ThreadID),
+    CONSTRAINT FK_ChatMessages_Elder FOREIGN KEY (ElderID) REFERENCES Users(UserID),
+    CONSTRAINT FK_ChatMessages_Mood FOREIGN KEY (DetectedMoodID) REFERENCES MoodTypes(MoodID)
+);
+
+CREATE INDEX IX_ChatMessages_Thread_CreatedAt ON ChatMessages(ThreadID, CreatedAt);
+CREATE INDEX IX_ChatMessages_Elder_CreatedAt ON ChatMessages(ElderID, CreatedAt DESC);
+
+
