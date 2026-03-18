@@ -127,19 +127,7 @@ CREATE TABLE UserLogins (
   FOREIGN KEY (UserID) REFERENCES Users(UserID),
   FOREIGN KEY (RoleID) REFERENCES Roles(RoleID)
 );
---- not inserted
-/*
-CREATE TABLE LocationConsent (
-    ConsentID INT PRIMARY KEY IDENTITY(1,1),
-    ElderID INT NOT NULL,
-    CaregiverID INT NOT NULL,
-    IsEnabled BIT DEFAULT 0,
-    
-    FOREIGN KEY (ElderID) REFERENCES Users(UserID),
-    FOREIGN KEY (CaregiverID) REFERENCES Users(UserID)
-);
-GO
-*/
+
 
 CREATE TABLE UserDevices (
     DeviceID INT PRIMARY KEY IDENTITY(1,1),
@@ -153,7 +141,6 @@ CREATE TABLE UserDevices (
 );
 CREATE INDEX IX_UserDevices_UserID ON UserDevices(UserID);
 CREATE INDEX IX_UserDevices_AppType ON UserDevices(app_type);
---DROP TABLE UserDevices;
 
 CREATE TABLE Medications (
     MedicationID INT PRIMARY KEY IDENTITY(1,1),
@@ -466,40 +453,23 @@ CREATE TABLE ElderFormActivity (
 GO
 
 
-
-CREATE TABLE CheckInSchedules (
-    ScheduleID INT IDENTITY(1,1) PRIMARY KEY,
-    ElderID INT NOT NULL,
-    ScheduleName NVARCHAR(20) NOT NULL,  -- Morning / Night
-    WindowType NVARCHAR(20) NULL,   -- Morning / Night
-    LocalDate DATE NULL,
-    LocalTime TIME NOT NULL,             -- e.g. 08:00, 20:00
-    IsActive BIT NOT NULL DEFAULT 1,
-    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
-
-    CONSTRAINT FK_CheckInSchedules_Elder
-        FOREIGN KEY (ElderID) REFERENCES Users(UserID),
-
-    CONSTRAINT UQ_CheckInSchedules UNIQUE (ElderID, ScheduleName)
-);
-
 CREATE TABLE CheckInRuns (
     RunID BIGINT IDENTITY(1,1) PRIMARY KEY,
-    ScheduleID INT NOT NULL,
     ElderID INT NOT NULL,
-    PlannedAt DATETIME2 NOT NULL,         -- when it was supposed to run (local)
+
+    PlannedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
     TriggeredAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
     CompletedAt DATETIME2 NULL,
 
-    Status NVARCHAR(20) NOT NULL DEFAULT 'Triggered',
-    -- Triggered / WaitingUser / Completed / Missed / Failed
+    Status NVARCHAR(20) NOT NULL DEFAULT 'WaitingUser',
+    -- WaitingUser / Completed / Missed / Failed
 
-    UserResponse NVARCHAR(MAX) NULL,      -- elder’s direct response (optional)
+    WindowType NVARCHAR(20) NOT NULL,   -- Morning / Night
+    LocalDate DATE NOT NULL,
+
+    UserResponse NVARCHAR(MAX) NULL,
     DetectedMoodID INT NULL,
     Notes NVARCHAR(500) NULL,
-
-    CONSTRAINT FK_CheckInRuns_Schedule
-        FOREIGN KEY (ScheduleID) REFERENCES CheckInSchedules(ScheduleID),
 
     CONSTRAINT FK_CheckInRuns_Elder
         FOREIGN KEY (ElderID) REFERENCES Users(UserID),
@@ -507,10 +477,19 @@ CREATE TABLE CheckInRuns (
     CONSTRAINT FK_CheckInRuns_Mood
         FOREIGN KEY (DetectedMoodID) REFERENCES MoodTypes(MoodID)
 );
+GO
 
-CREATE INDEX IX_CheckInRuns_Elder_PlannedAt ON CheckInRuns(ElderID, PlannedAt DESC);
-CREATE INDEX IX_CheckInRuns_Schedule_TriggeredAt ON CheckInRuns(ScheduleID, TriggeredAt DESC);
+CREATE UNIQUE INDEX UX_CheckInRuns_Elder_Window_LocalDate
+ON CheckInRuns(ElderID, WindowType, LocalDate);
+GO
 
+CREATE INDEX IX_CheckInRuns_Elder_LocalDate
+ON CheckInRuns(ElderID, LocalDate DESC);
+GO
+
+ALTER TABLE ChatThreads
+ADD CONSTRAINT FK_ChatThreads_Run
+FOREIGN KEY (RelatedRunID) REFERENCES CheckInRuns(RunID);
 
 CREATE TABLE ChatThreads (
     ThreadID BIGINT IDENTITY(1,1) PRIMARY KEY,
@@ -530,7 +509,7 @@ CREATE TABLE ChatMessages (
     MessageID BIGINT IDENTITY(1,1) PRIMARY KEY,
     ThreadID BIGINT NOT NULL,
     ElderID INT NOT NULL,
-    Role NVARCHAR(20) NOT NULL, -- 'elder' | 'assistant' | 'system'
+    Role NVARCHAR(20) NOT NULL, -- 'elder' | 'assistant' 
     Content NVARCHAR(MAX) NOT NULL,
 
     CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),

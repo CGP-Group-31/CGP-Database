@@ -5,7 +5,7 @@ SELECT * FROM DOCTOR;
 
 SELECT * from Users;
 select * from CareRelationships;
-
+SELECT * FROM Users WHERE Timezone = '+ 00:00';
 SELECT * from ElderProfiles;
 SELECT * from UserLogins;
 ALTER TABLE ElderProfiles
@@ -84,6 +84,7 @@ Relationship varchar(100) NUll;
 SELECT name FROM sys.tables;
 
 SELECT * FROM ELders;
+DELETE FROM locationtrack WHERE LocationID = 1011;
 
 SELECT *FROM locationtrack;
 
@@ -153,3 +154,58 @@ VALUES (
     '14:30', -- AppointmentTime in HH:MM format
     GETDATE() -- RecordedAt (current date and time)
 );
+
+
+1
+
+SELECT * FROM MoodTypes;
+
+SELECT * FROM SemanticIndexQueue;
+
+SELECT * FROM ElderAdditionalInfo;
+
+SELECT * FROM ElderForm;
+ALTER TABLE CheckInRuns
+ADD WindowType NVARCHAR(20) NULL,   -- Morning / Night
+    LocalDate DATE NULL;
+
+CREATE UNIQUE INDEX UX_CheckInRuns_Elder_Window_LocalDate
+ON CheckInRuns(ElderID, WindowType, LocalDate);
+
+UPDATE Users
+SET Timezone = 'IST +05:00'
+WHERE UserID = 1312;
+
+
+
+UPDATE Users
+SET PasswordHash = '$2y$10$.ZidhHFjx8VaZEWuDjKX/.1nsh6ef.enVbZRFJLkaDl/E2Otek0f6'
+WHERE UserID = 293;
+
+select * FROM CheckInSchedules;
+SELECT * FROM CheckInRuns;
+SELECT * FROM ChatThreads;
+SELECT * FROM ChatMessages;
+
+
+INSERT INTO CheckInSchedules (ElderID, ScheduleName, LocalDate, LocalTime, IsActive, CreatedAt)
+VALUES (224, 'Morning', '2026-03-17', '07:00', 1, SYSUTCDATETIME());
+
+ALTER TABLE CheckInSchedules
+ADD LocalDate DATE NULL;
+
+ALTER TABLE CheckInRuns
+DROP CONSTRAINT FK_CheckInRuns_Schedule;
+GO
+
+ALTER TABLE CheckInRuns
+DROP CONSTRAINT FK_CheckInRuns_Schedule;
+GO
+DROP TABLE CheckInSchedules;
+
+DROP TABLE IF EXISTS CheckInRuns;
+GO
+ALTER TABLE ChatThreads
+DROP CONSTRAINT FK_ChatThreads_Run;
+
+SELECT * FROM carereports WHERE ElderID = 224;
