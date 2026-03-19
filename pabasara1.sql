@@ -209,3 +209,5 @@ ALTER TABLE ChatThreads
 DROP CONSTRAINT FK_ChatThreads_Run;
 
 SELECT * FROM carereports WHERE ElderID = 224;
+
+SELECT * FROM carereports;

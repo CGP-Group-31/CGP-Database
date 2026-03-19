@@ -467,8 +467,8 @@ CREATE TABLE CheckInRuns (
     WindowType NVARCHAR(20) NOT NULL,   -- Morning / Night
     LocalDate DATE NOT NULL,
 
-    UserResponse NVARCHAR(MAX) NULL,
-    DetectedMoodID INT NULL,
+ ---   UserResponse NVARCHAR(MAX) NULL,
+ --   DetectedMoodID INT NULL,
     Notes NVARCHAR(500) NULL,
 
     CONSTRAINT FK_CheckInRuns_Elder
