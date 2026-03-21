@@ -526,3 +526,33 @@ CREATE INDEX IX_ChatMessages_Thread_CreatedAt ON ChatMessages(ThreadID, CreatedA
 CREATE INDEX IX_ChatMessages_Elder_CreatedAt ON ChatMessages(ElderID, CreatedAt DESC);
 
 
+CREATE TABLE CareReports (
+    ReportID BIGINT IDENTITY(1,1) PRIMARY KEY,
+    ElderID INT NOT NULL,
+    ReportType NVARCHAR(20) NOT NULL, -- 'daily' | 'weekly'
+    PeriodStart DATE NOT NULL,
+    PeriodEnd DATE NOT NULL,
+    ReportText NVARCHAR(MAX) NOT NULL,
+    GeneratedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    ReportJason NVARCHAR(MAX)  NULL,
+    GeneratedBy NVARCHAR(30) NOT NULL DEFAULT 'system', -- or user id later
+
+    CONSTRAINT FK_CareReports_Elder FOREIGN KEY (ElderID) REFERENCES Users(UserID)
+);
+
+CREATE INDEX IX_CareReports_Elder_Period ON CareReports(ElderID, PeriodStart DESC, PeriodEnd DESC);
+
+
+CREATE TABLE ReportSources (
+    ReportID BIGINT NOT NULL,
+    SourceType NVARCHAR(20) NOT NULL, -- 'chat_message' | 'checkin_run'
+    SourceID BIGINT NOT NULL,
+
+    PRIMARY KEY (ReportID, SourceType, SourceID),
+
+    CONSTRAINT FK_ReportSources_Report FOREIGN KEY (ReportID) REFERENCES CareReports(ReportID)
+);
+
+CREATE INDEX IX_ReportSources_Source ON ReportSources(SourceType, SourceID);
+
+
