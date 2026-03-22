@@ -15,16 +15,6 @@ CREATE TABLE TriggerType (
     TriggerTypeName NVARCHAR(50) UNIQUE NOT NULL 
 );
 
-CREATE TABLE MessageType (
-    MessageTypeID INT PRIMARY KEY IDENTITY(1,1),
-    MessageTypeName NVARCHAR(50) UNIQUE NOT NULL 
-);
-
-CREATE TABLE NotificationType (
-    NotificationTypeID INT PRIMARY KEY IDENTITY(1,1),
-    TypeName NVARCHAR(100) UNIQUE NOT NULL 
-);
-
 
 CREATE TABLE VitalTypes (
     VitalTypeID INT PRIMARY KEY IDENTITY(1,1),
@@ -314,7 +304,7 @@ VALUES
         CREATE TABLE MoodTypes (   
     MoodID INT IDENTITY(1,1) PRIMARY KEY,
     MoodName NVARCHAR(50) NOT NULL UNIQUE
-);  -------ai eken
+); 
 INSERT INTO MoodTypes (MoodName)
 VALUES ('Happy'), ('Neutral'), ('Sad'), ('Anxious'), ('Angry'), ('Confused'), ('Tired');
 
@@ -467,8 +457,8 @@ CREATE TABLE CheckInRuns (
     WindowType NVARCHAR(20) NOT NULL,   -- Morning / Night
     LocalDate DATE NOT NULL,
 
- ---   UserResponse NVARCHAR(MAX) NULL,
- --   DetectedMoodID INT NULL,
+
+
     Notes NVARCHAR(500) NULL,
 
     CONSTRAINT FK_CheckInRuns_Elder
@@ -535,7 +525,6 @@ CREATE TABLE CareReports (
     ReportText NVARCHAR(MAX) NOT NULL,
     GeneratedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
     ReportJason NVARCHAR(MAX)  NULL,
-    GeneratedBy NVARCHAR(30) NOT NULL DEFAULT 'system', -- or user id later
 
     CONSTRAINT FK_CareReports_Elder FOREIGN KEY (ElderID) REFERENCES Users(UserID)
 );
@@ -554,5 +543,4 @@ CREATE TABLE ReportSources (
 );
 
 CREATE INDEX IX_ReportSources_Source ON ReportSources(SourceType, SourceID);
-
 
