@@ -552,3 +552,13 @@ CREATE TABLE SemanticIndexQueue (
     IsProcessed BIT DEFAULT 0,
     CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
 );
+
+CREATE TABLE Complaints (
+    ComplaintID INT NOT NULL PRIMARY KEY,
+    ComplainantID INT NOT NULL,
+    Subject VARCHAR(255) NOT NULL,
+    Description TEXT NOT NULL,
+    Status VARCHAR(50) NULL,
+    CreatedAt DATETIME NULL,
+    CONSTRAINT FK_Complaints_Users FOREIGN KEY (ComplainantID) REFERENCES Users(UsersID)
+);
