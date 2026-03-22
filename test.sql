@@ -544,3 +544,11 @@ CREATE TABLE ReportSources (
 
 CREATE INDEX IX_ReportSources_Source ON ReportSources(SourceType, SourceID);
 
+CREATE TABLE SemanticIndexQueue (
+    QueueID BIGINT IDENTITY PRIMARY KEY,
+    SourceType NVARCHAR(30),
+    SourceID BIGINT,
+    ElderID INT,
+    IsProcessed BIT DEFAULT 0,
+    CreatedAt DATETIME2 DEFAULT SYSUTCDATETIME()
+);
